@@ -107,6 +107,7 @@ targets:
       defineList:
         - USE_STDPERIPH_DRIVER
       incList:
+        - .
         - ../Start
         - ../Library
         - ../User
