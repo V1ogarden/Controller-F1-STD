@@ -1,7 +1,7 @@
 version: "4.1"
 name: Project
 type: ARM
-deviceName: null
+deviceName: STM32F100C8
 packDir: .pack/Keil/STM32F1xx_DFP.2.3.0
 srcDirs: []
 virtualFolder:
@@ -106,6 +106,7 @@ targets:
     cppPreprocessAttrs:
       defineList:
         - USE_STDPERIPH_DRIVER
+        - STM32F10X_MD_VL
       incList:
         - .
         - ../Start
