@@ -1,0 +1,10 @@
+
+Objects/
+Listings/
+DebugConfig/
+
+VSCode_Space/build/
+VSCode_Space/.eide/log/
+VSCode_Space/.eide/deps/
+VSCode_Space/.eide/builder.json
+VSCode_Space/compile_commands.json

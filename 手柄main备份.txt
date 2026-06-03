@@ -1,0 +1,34 @@
+const PinInfo pinInfo[PIN_NUM] = {
+    // {端口, 引脚, "按下发送(Press)", "松开发送(Release)"}
+    // 注意：松开指令设为 "be" (空指令)，防止松手后机械臂误动作
+
+    // --- 系统控制 ---
+    {GPIOB, GPIO_Pin_12, "bTe", "be"},    // MODE_PIN:    发送 'T' -> 切换到体感模式 (target_mode=1)
+    {GPIOB, GPIO_Pin_13, "bme", "be"},    // CHOOSER_PIN: (暂定) 发送 'm' -> 舵机复位 (Servos_Init)
+
+    // --- 逆运动学 XYZ 坐标控制 ---
+    // 代码对应: 'f'=x+, 'b'=x-, 'l'=y+, 'r'=y-, 'u'=z+, 'd'=z-
+    {GPIOA, GPIO_Pin_11, "bre", "be"},    // RIGHT_PIN:   发送 'r' (Right, Y-)
+    {GPIOB, GPIO_Pin_5,  "ble", "be"},    // LEFT_PIN:    发送 'l' (Left,  Y+)
+    {GPIOB, GPIO_Pin_8,  "bfe", "be"},    // FRONT_PIN:   发送 'f' (Front, X+)
+    {GPIOB, GPIO_Pin_4,  "bbe", "be"},    // BACK_PIN:    发送 'b' (Back,  X-)
+    {GPIOB, GPIO_Pin_0,  "bue", "be"},    // UP_PIN:      发送 'u' (Up,    Z+)
+    {GPIOA, GPIO_Pin_3,  "bde", "be"},    // DOWN_PIN:    发送 'd' (Down,  Z-)
+    
+    // --- 关节/末端控制 ---
+    // 代码对应: 'R'=Angle5+, 'L'=Angle5- (手腕旋转)
+    {GPIOA, GPIO_Pin_12, "bRe", "be"},    // TURN_RIGHT:  发送 'R' (手腕右转)
+    {GPIOB, GPIO_Pin_9,  "bLe", "be"},    // TURN_LEFT:   发送 'L' (手腕左转)
+
+    // 代码对应: 'U'=Angle4+, 'D'=Angle4- (手腕俯仰/点头)
+    {GPIOA, GPIO_Pin_7,  "bUe", "be"},    // CAT_UP_PIN:  发送 'U' (抬头/上勾)
+    {GPIOA, GPIO_Pin_5,  "bDe", "be"},    // CAT_DOWN_PIN:发送 'D' (低头/下压)
+
+    // 代码对应: 'C'=Angle6++, 'O'=Angle6-- (夹爪)
+    {GPIOA, GPIO_Pin_4,  "bCe", "be"},    // CLOSE_PIN:   发送 'C' (Close, 闭合夹爪)
+    {GPIOA, GPIO_Pin_6,  "bOe", "be"},    // OPEN_PIN:    发送 'O' (Open,  张开夹爪)
+
+    // --- 其他功能 ---
+    {GPIOA, GPIO_Pin_1,  "bme", "be"},    // MID_PIN:     发送 'm' (复位归中)
+    {GPIOB, GPIO_Pin_3,  "be",  "be"}     // BALANCE_PIN: (代码中未定义对应功能，留空)
+};
