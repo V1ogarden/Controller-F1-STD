@@ -64,7 +64,7 @@ typedef struct
 {
     GPIO_TypeDef* port;  // GPIO端口（如GPIOA、GPIOB）
     uint16_t pin;        // 引脚号（如GPIO_Pin_12）
-		char arm_cmd[5];		 //指令
+	char arm_cmd[5];		 //指令
 } PinInfo;
 
 //引脚状态机结构体

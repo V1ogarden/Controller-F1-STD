@@ -1,33 +1,23 @@
 #include "stm32f10x.h"
 #include "Inputs.h"
 
+// 在 Inputs.c 中修改为这种写法：
 const PinInfo pinInfo[PIN_NUM] = {
-    // {端口, 引脚, "按下发送(Press)", "松开发送(Release)"}
-
-    // --- 系统控制 ---
-    {GPIOB, GPIO_Pin_12, "bTe", },    // MODE_PIN
-		
-    // --- 逆运动学 XYZ 坐标控制 ---
-    {GPIOA, GPIO_Pin_11, "bre",},    // RIGHT_PIN:   
-    {GPIOB, GPIO_Pin_5,  "ble", },    // LEFT_PIN:    
-    {GPIOB, GPIO_Pin_8,  "bfe",},    // FRONT_PIN:   
-    {GPIOB, GPIO_Pin_4,  "bbe",},    // BACK_PIN:    
-    {GPIOB, GPIO_Pin_0,  "bue", },    // UP_PIN:      
-    {GPIOA, GPIO_Pin_3,  "bde",},    // DOWN_PIN:    
-    // 手腕旋转
-    {GPIOA, GPIO_Pin_12, "bRe", },    // TURN_RIGHT
-    {GPIOB, GPIO_Pin_9,  "bLe", },    // TURN_LEFT
-
-    // 手腕俯仰/点头
-    {GPIOA, GPIO_Pin_7,  "bUe", },    // CAT_UP_PIN
-    {GPIOA, GPIO_Pin_5,  "bDe", },    // CAT_DOWN_PIN
-
-    // 夹爪
-    {GPIOA, GPIO_Pin_4,  "bCe", },    // CLOSE_PIN
-    {GPIOA, GPIO_Pin_6,  "bOe", },    // OPEN_PIN
-
-    {GPIOA, GPIO_Pin_1,  "bme", },    // MID_PIN
-		
+    // 这样写，即使 Inputs.h 中的枚举顺序变了，也绝对不会串位！
+    [MODE_PIN]       = {GPIOB, GPIO_Pin_12, "bTe"},
+    [RIGHT_PIN]      = {GPIOA, GPIO_Pin_11, "bre"},
+    [LEFT_PIN]       = {GPIOB, GPIO_Pin_5,  "ble"},
+    [FRONT_PIN]      = {GPIOB, GPIO_Pin_8,  "bfe"},
+    [BACK_PIN]       = {GPIOB, GPIO_Pin_4,  "bbe"},
+    [UP_PIN]         = {GPIOB, GPIO_Pin_0,  "bue"},
+    [DOWN_PIN]       = {GPIOA, GPIO_Pin_3,  "bde"},
+    [TURN_RIGHT_PIN] = {GPIOA, GPIO_Pin_12, "bRe"},
+    [TURN_LEFT_PIN]  = {GPIOB, GPIO_Pin_9,  "bLe"},
+    [CAT_UP_PIN]     = {GPIOA, GPIO_Pin_7,  "bUe"},
+    [CAT_DOWN_PIN]   = {GPIOA, GPIO_Pin_5,  "bDe"},
+    [CLOSE_PIN]      = {GPIOA, GPIO_Pin_4,  "bCe"},
+    [OPEN_PIN]       = {GPIOA, GPIO_Pin_6,  "bOe"},
+    [MID_PIN]        = {GPIOA, GPIO_Pin_1,  "bme"},
 };
 
 // 引脚状态机数组（保存读取信息和消抖和松手过程）
@@ -115,43 +105,40 @@ void TIM2_IRQHandler(void)
 						// 循环读取所有引脚电平，保存到状态数组
             keys_rd[pin].read = GPIO_ReadInputDataBit(pinInfo[pin].port,pinInfo[pin].pin);
 					
-						if(keys_rd[pin].rd_step==0)
-						{
-							if(keys_rd[pin].read==0)
-							{
-								keys_rd[pin].rd_step=1;
-							}
-						}
-						
-						if(keys_rd[pin].rd_step==1)
-						{
-							if(keys_rd[pin].read==0)
-							{
-								keys_rd[pin].tap_flag=1;
-								keys_rd[pin].rd_step=2;
-							}
-							else
-							{
-								keys_rd[pin].rd_step=0;
-							}
-						}
-						
-						if(keys_rd[pin].rd_step==2)
-						{
-							if(keys_rd[pin].read==1)
-							{
-								keys_rd[pin].rls_flag=1;
-								keys_rd[pin].rd_step=3;
-							}
-						}
-						
-						if(keys_rd[pin].rd_step==3)
-						{
-							if(keys_rd[pin].rls_flag)
-							{
-								keys_rd[pin].rd_step=0;
-							}
-						}
+					
+            switch (keys_rd[pin].rd_step)
+            {
+                case 0: // 初始状态，等待按下
+                    if (keys_rd[pin].read == 0) {
+                        keys_rd[pin].rd_step = 1;
+                    }
+                    break;
+                    
+                case 1: // 按下消抖确认
+                    if (keys_rd[pin].read == 0) {
+                        keys_rd[pin].tap_flag = 1;
+                        keys_rd[pin].rd_step = 2;
+                    } else {
+                        keys_rd[pin].rd_step = 0; // 抖动，回到初始状态
+                    }
+                    break;
+                    
+                case 2: // 等待松开
+                    if (keys_rd[pin].read == 1) {
+                        // 注意：这里其实也建议加一个松开消抖（参考下文第2点）
+                        keys_rd[pin].rls_flag = 1;
+                        keys_rd[pin].rd_step = 3;
+                    }
+                    break;
+                    
+                case 3: // 等待主程序清除松开标志
+                    // 如果主程序还没处理完 rls_flag，保持在这里
+                    // 如果处理完了（通常主循环会将 rls_flag 清 0），则回到 0
+                    if (keys_rd[pin].rls_flag == 0) {
+                        keys_rd[pin].rd_step = 0;
+                    }
+                    break;
+            }
         }
 		
 				

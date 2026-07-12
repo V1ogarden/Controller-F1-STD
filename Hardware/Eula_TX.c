@@ -13,12 +13,11 @@ void TIM3_Init(void)
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
     
-
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
-    TIM_TimeBaseStructure.TIM_Prescaler = 7199;                  
+    TIM_TimeBaseStructure.TIM_Prescaler = 7199;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;   
-    TIM_TimeBaseStructure.TIM_Period = 199;                       
+    TIM_TimeBaseStructure.TIM_Period = 999;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;       
     TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
     
@@ -42,11 +41,10 @@ void TIM3_Init(void)
 void TIM3_IRQHandler(void) 
 {
     if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) 
-		{        
-			
-			BT_Send_String((uint8_t*)eula_tx);
-			
-			TIM_ClearITPendingBit(TIM3, TIM_IT_Update);  // 清除中断标志，避免重复触发
-      
+    {        
+
+        BT_SendArray_DMA((uint8_t*)eula_tx, strlen((char*)eula_tx));
+        
+        TIM_ClearITPendingBit(TIM3, TIM_IT_Update);  // 清除中断标志，避免重复触发
     }
 }
